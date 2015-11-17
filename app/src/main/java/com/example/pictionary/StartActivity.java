@@ -7,7 +7,7 @@ import android.view.MenuItem;
 
 public class StartActivity extends Activity {
 
-    //changes to test GIT
+    //test GIT test GIT test GIT
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
