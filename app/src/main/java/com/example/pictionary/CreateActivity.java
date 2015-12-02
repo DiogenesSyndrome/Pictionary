@@ -1,6 +1,7 @@
 package com.example.pictionary;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -20,8 +21,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -41,12 +46,20 @@ public class CreateActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ListView list = new ListView(this);
-        setContentView(list);
+
+        setContentView(R.layout.activity_create);
+
+        ListView list = (ListView)findViewById(R.id.list);
+        //setContentView(list);
 
         mConnectedDevices = new ArrayList<BluetoothDevice>();
+        //mConnectedDevicesAdapter = new ArrayAdapter<BluetoothDevice>(this, R.layout.activity_create,R.id.adapter, mConnectedDevices);
+
+        // the Adapter will transform an array of objects (devices) in  Views with correspoding
+        // item layout and a toString() conversion
         mConnectedDevicesAdapter = new ArrayAdapter<BluetoothDevice>(this,
                 android.R.layout.simple_list_item_1, mConnectedDevices);
+
         list.setAdapter(mConnectedDevicesAdapter);
 
         /*
@@ -55,7 +68,38 @@ public class CreateActivity extends Activity {
          */
         mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
+
+
+        //display touchpad coordinates
+        final TextView textView = (TextView)findViewById(R.id.coordinates);
+        //textView.setText("you touched :");
+        final View touchView=findViewById(R.id.draw);
+
+
+        //define here a new method of View, which extends/implements the onTouchListener interface
+        //OnTouchListener calls back onTouch on each MotionEvent
+        touchView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                textView.setText("you touched: " + String.valueOf(event.getX())
+                                             + 'x' + String.valueOf(event.getY()));
+                //return true to consume Event from buffer so it allows continous callbacks
+                return true;
+            }
+        });
     }
+
+    /*
+    public void setButtonCreateListener(){
+        Button buttonCreate = (Button) findViewById(R.id.button_my_create);
+        buttonCreate.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DrawActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+    */
 
     @Override
     protected void onResume() {
