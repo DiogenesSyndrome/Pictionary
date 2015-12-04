@@ -70,4 +70,19 @@ public class DeviceProfile {
                 .putInt(value)
                 .array();
     }
+
+    public static byte[] bytesFromInt(float value) {
+        //Convert result into raw bytes. GATT APIs expect LE order
+        return ByteBuffer.allocate(4)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .putInt(Math.round(value))
+                .array();
+    }
+
+    public static byte[] bytesFromFloat(float value){
+        return ByteBuffer.allocate(4)
+                .order(ByteOrder.LITTLE_ENDIAN)
+                .putFloat(value)
+                .array();
+    }
 }

@@ -286,6 +286,7 @@ public class JoinActivity extends Activity {
             }
         }
 
+        //Callback reporting the result of a characteristic read operation.
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
@@ -310,18 +311,21 @@ public class JoinActivity extends Activity {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        updateDateText((long)charValue * 1000);
+                        //updateDateText((long)charValue * 1000);
+                        //updateDateText((long)charValue * 1000);
                     }
                 });
             }
         }
 
+        //this callback is triggered by a notification from the remote device
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
-            Log.i(TAG, "Notification of time characteristic changed on server.");
             final int charValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
+            Log.i(TAG, "Notification of time characteristic changed on server." );
+
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {

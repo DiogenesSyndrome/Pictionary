@@ -43,6 +43,10 @@ public class CreateActivity extends Activity {
     private ArrayList<BluetoothDevice> mConnectedDevices;
     private ArrayAdapter<BluetoothDevice> mConnectedDevicesAdapter;
 
+    private float xCoord;
+    private float yCoord;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,27 +83,19 @@ public class CreateActivity extends Activity {
         //define here a new method of View, which extends/implements the onTouchListener interface
         //OnTouchListener calls back onTouch on each MotionEvent
         touchView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                textView.setText("you touched: " + String.valueOf(event.getX())
-                                             + 'x' + String.valueOf(event.getY()));
-                //return true to consume Event from buffer so it allows continous callbacks
-                return true;
-            }
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    xCoord= event.getX();
+                    yCoord= event.getY();
+
+                    textView.setText("you touched: " + String.valueOf(xCoord)
+                            + 'x' + String.valueOf(yCoord));
+                    //return true to consume Event from buffer so it allows continous callbacks
+                    return true;
+                }
         });
     }
 
-    /*
-    public void setButtonCreateListener(){
-        Button buttonCreate = (Button) findViewById(R.id.button_my_create);
-        buttonCreate.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), DrawActivity.class);
-                startActivity(intent);
-            }
-        });
-    }
-    */
 
     @Override
     protected void onResume() {
@@ -191,7 +187,7 @@ public class CreateActivity extends Activity {
         @Override
         public void run() {
             notifyConnectedDevices();
-            mHandler.postDelayed(this, 2000);
+            mHandler.postDelayed(this, 50);
         }
     };
 
@@ -199,7 +195,7 @@ public class CreateActivity extends Activity {
      * Callback handles all incoming requests from GATT clients.
      * From connections to read/write requests.
      */
-    private BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback() {
+    private BluetoothGattServerCallback mGattServerCallback = new BluetoothGattServerCallback()     {
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
             super.onConnectionStateChange(device, status, newState);
@@ -215,6 +211,7 @@ public class CreateActivity extends Activity {
             }
         }
 
+        //callback called when remote client requests to read a characteristic
         @Override
         public void onCharacteristicReadRequest(BluetoothDevice device,
                                                 int requestId,
@@ -228,7 +225,7 @@ public class CreateActivity extends Activity {
                         requestId,
                         BluetoothGatt.GATT_SUCCESS,
                         0,
-                        getStoredValue());
+                        DeviceProfile.bytesFromInt(xCoord));
             }
 
             if (DeviceProfile.CHARACTERISTIC_OFFSET_UUID.equals(characteristic.getUuid())) {
@@ -364,12 +361,12 @@ public class CreateActivity extends Activity {
     }
 
     /* Storage and access to local characteristic data */
-
+    //notify remote device such that callbacks can be called
     private void notifyConnectedDevices() {
         for (BluetoothDevice device : mConnectedDevices) {
             BluetoothGattCharacteristic readCharacteristic = mGattServer.getService(DeviceProfile.SERVICE_UUID)
                     .getCharacteristic(DeviceProfile.CHARACTERISTIC_ELAPSED_UUID);
-            readCharacteristic.setValue(getStoredValue());
+            readCharacteristic.setValue(DeviceProfile.bytesFromInt(xCoord));
             mGattServer.notifyCharacteristicChanged(device, readCharacteristic, false);
         }
     }
