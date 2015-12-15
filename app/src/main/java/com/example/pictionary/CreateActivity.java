@@ -31,7 +31,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class CreateActivity extends Activity {
+public class CreateActivity extends Activity implements CustomModel.OnCustomStateListener {
 
     private static final String TAG = "CreateActivity";
 
@@ -55,6 +55,8 @@ public class CreateActivity extends Activity {
 
         ListView list = (ListView)findViewById(R.id.list);
         //setContentView(list);
+
+
 
         mConnectedDevices = new ArrayList<BluetoothDevice>();
         //mConnectedDevicesAdapter = new ArrayAdapter<BluetoothDevice>(this, R.layout.activity_create,R.id.adapter, mConnectedDevices);
@@ -94,6 +96,15 @@ public class CreateActivity extends Activity {
                     return true;
                 }
         });
+
+        //start game
+        setButtonStartGame();
+
+        CustomModel.getInstance().setListener(this);
+
+        boolean modelState = CustomModel.getInstance().getState();
+        Log.d(TAG, "Current state: " + String.valueOf(modelState));
+
     }
 
 
@@ -147,6 +158,14 @@ public class CreateActivity extends Activity {
         shutdownServer();
     }
 
+    @Override
+    protected void onStop(){
+        super.onStop();
+
+        stopAdvertising();
+        shutdownServer();
+    }
+
     /*
      * Create the GATT server instance, attaching all services and
      * characteristics that should be exposed
@@ -183,6 +202,7 @@ public class CreateActivity extends Activity {
         mGattServer.close();
     }
 
+    //separate thread for notifications
     private Runnable mNotifyRunnable = new Runnable() {
         @Override
         public void run() {
@@ -362,10 +382,12 @@ public class CreateActivity extends Activity {
 
     /* Storage and access to local characteristic data */
     //notify remote device such that callbacks can be called
+    //this will run on a separate thread
     private void notifyConnectedDevices() {
         for (BluetoothDevice device : mConnectedDevices) {
             BluetoothGattCharacteristic readCharacteristic = mGattServer.getService(DeviceProfile.SERVICE_UUID)
                     .getCharacteristic(DeviceProfile.CHARACTERISTIC_ELAPSED_UUID);
+
             readCharacteristic.setValue(DeviceProfile.bytesFromInt(xCoord));
             mGattServer.notifyCharacteristicChanged(device, readCharacteristic, false);
         }
@@ -385,5 +407,27 @@ public class CreateActivity extends Activity {
         synchronized (mLock) {
             mTimeOffset = newOffset;
         }
+    }
+
+    public void setButtonStartGame(){
+        Button buttonStart = (Button) findViewById(R.id.button_start);
+        buttonStart.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), DrawActivity.class);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    public void stateChanged() {
+        /*
+        boolean modelState = CustomModel.getInstance().getState();
+        Log.d(TAG, "MainActivity says: Model state changed: " +
+                String.valueOf(modelState));*/
+
+        xCoord=CustomModel.getInstance().getValueX();
+        yCoord=CustomModel.getInstance().getValueY();
+        notifyConnectedDevices();
     }
 }

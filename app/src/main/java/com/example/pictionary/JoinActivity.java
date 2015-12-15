@@ -224,7 +224,7 @@ public class JoinActivity extends Activity {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             Log.d(TAG, "onScanResult");
-
+            //Prints name of devices
             processResult(result);
         }
 

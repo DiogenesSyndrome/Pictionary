@@ -12,7 +12,8 @@
     <ListView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"></ListView>
+        android:layout_height="0dp"
+        android:layout_weight="1"></ListView>
 
     <!--TextView
         android:id="@+id/adapter"
@@ -23,14 +24,23 @@
     <TextView
         android:id="@+id/coordinates"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:text="" />
 
     <TextView
         android:id="@+id/draw"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
         android:text="" />
+
+    <Button
+        android:id="@+id/button_start"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="START GAME "/>
 
 
 </LinearLayout>
