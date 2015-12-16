@@ -10,6 +10,7 @@ public class DrawActivity extends Activity {
 
     private float xCoord;
     private float yCoord;
+    private BLESingleton mBLE= BLESingleton.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +24,7 @@ public class DrawActivity extends Activity {
 
         //CustomModel.getInstance().changeState(true);
 
+
         //define here a new method of View, which extends/implements the onTouchListener interface
         //OnTouchListener calls back onTouch on each MotionEvent
         touchView.setOnTouchListener(new View.OnTouchListener() {
@@ -35,6 +37,7 @@ public class DrawActivity extends Activity {
                         + 'x' + String.valueOf(yCoord));
                 //return true to consume Event from buffer so it allows continous callbacks
                 //CustomModel.getInstance().changeState(xCoord, yCoord);
+                mBLE.x = xCoord;
                 return true;
             }
         });
