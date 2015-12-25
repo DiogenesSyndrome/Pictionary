@@ -13,6 +13,10 @@ import android.bluetooth.le.AdvertiseCallback;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertiseSettings;
 import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Log;
@@ -24,36 +28,108 @@ import java.util.ArrayList;
 /**
  * Created by Lucian on 12/15/2015.
  */
-public class BLESingleton {
 
-    public static BLESingleton getInstance() {
-        if(mInstance == null) {
-            mInstance = new BLESingleton();
-        }
-        return mInstance;
-    }
+/**
+ * DEV COMMENTS :
+ * Long debates on whether the class should extend ContextWrapper (to have access to a class' context)
+ * or should describe a interface to be implemented in each Activity.
+ * This is a singleton (unique static instantiation) and not a service, bc BLE is not needed in the
+ * background and it is easier to implement : )
+ *
+ * TODO: try to reduce the number of public fields
+ */
+public class BLESingleton extends ContextWrapper{
 
-    public void init(){
-        mConnectedDevices = new ArrayList<BluetoothDevice>();
-
-
-    }
+    private static final String TAG = "BLESingleton";
+    private static BLESingleton mInstance = null;
 
     //TODO: CHANGE THIS URGENTLY
     public float x;
     public float y;
+    public float xCoord;
 
-    private static BLESingleton mInstance;
 
-    public BluetoothManager mBluetoothManager;
-    public BluetoothAdapter mBluetoothAdapter;
-    public BluetoothLeAdvertiser mBluetoothLeAdvertiser;
-    public BluetoothGattServer mGattServer;
+    private BluetoothManager mBluetoothManager;
+    private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
+    private BluetoothGattServer mGattServer;
 
-    public ArrayList<BluetoothDevice> mConnectedDevices;
-    public ArrayAdapter<BluetoothDevice> mConnectedDevicesAdapter;
+    private ArrayList<BluetoothDevice> mConnectedDevices;
+    protected ArrayAdapter<BluetoothDevice> mConnectedDevicesAdapter;
 
-    private float xCoord;
+
+    private BLESingleton(Context base) {
+        super(base);
+    }
+
+    public static BLESingleton getInstance(Context base) {
+        // Context can be instantiated only once
+        if(mInstance==null){
+            mInstance = new BLESingleton(base);
+        }
+        return mInstance;
+    }
+
+    public static BLESingleton getInstance(){
+        if(mInstance==null)
+            Log.i(TAG,"trying to getInstance from non-constructed class");
+        return mInstance;
+    }
+
+    public boolean init(){
+        mConnectedDevices = new ArrayList<BluetoothDevice>();
+
+        // the Adapter will transform an array of objects (devices) in  Views with correspoding
+        // item layout and a toString() conversion
+        mConnectedDevicesAdapter = new ArrayAdapter<BluetoothDevice>(this,
+                android.R.layout.simple_list_item_1, mConnectedDevices);
+
+        /*
+         * Bluetooth in Android 4.3+ is accessed via the BluetoothManager, rather than
+         * the old static BluetoothAdapter.getInstance()
+         */
+        mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
+
+        /*
+         * We need to enforce that Bluetooth is first enabled, and take the
+         * user to settings to enable it if they have not done so.
+         */
+        if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
+            //Bluetooth is disabled
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivity(enableBtIntent);
+            return false;
+        }
+
+        /*
+         * Check for Bluetooth LE Support.  In production, our manifest entry will keep this
+         * from installing on these devices, but this will allow test devices or other
+         * sideloads to report whether or not the feature exists.
+         */
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, "No LE Support.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        /*
+         * Check for advertising support. Not all devices are enabled to advertise
+         * Bluetooth LE data.
+         */
+        if (!mBluetoothAdapter.isMultipleAdvertisementSupported()) {
+            Toast.makeText(this, "No Advertising Support.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        mBluetoothLeAdvertiser = mBluetoothAdapter.getBluetoothLeAdvertiser();
+        mGattServer = mBluetoothManager.openGattServer(this, mGattServerCallback);
+
+        initServer();
+        startAdvertising();
+
+        Toast.makeText(this, "BLE Advertising!.", Toast.LENGTH_SHORT).show();
+        return true;
+    }
 
     /*
    * Create the GATT server instance, attaching all services and
