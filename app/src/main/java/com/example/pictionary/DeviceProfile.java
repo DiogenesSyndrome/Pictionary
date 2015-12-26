@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothProfile;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.CharBuffer;
 import java.util.UUID;
 
 /**
@@ -84,5 +85,13 @@ public class DeviceProfile {
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putFloat(value)
                 .array();
+    }
+
+    public static byte[] bytesFromString(String value){
+        ByteBuffer buf = ByteBuffer.allocate(value.length()*4).order(ByteOrder.LITTLE_ENDIAN);
+        for (int i=0 ; i < value.length(); i++){
+            buf.putChar(value.charAt(i));
+        }
+        return buf.array();
     }
 }

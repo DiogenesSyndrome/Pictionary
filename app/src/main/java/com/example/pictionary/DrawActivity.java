@@ -1,16 +1,31 @@
 package com.example.pictionary;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothProfile;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
+import android.os.Handler;
+import android.widget.Toast;
+
 public class DrawActivity extends Activity {
 
+    private static final String TAG = "DrawActivity";
     private float xCoord;
     private float yCoord;
     private BLESingleton mBLE= BLESingleton.getInstance();
+
+    private String mLatestWord ="no guess word for now";
+    private TextView wordView;
+
+    private Handler mHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +36,8 @@ public class DrawActivity extends Activity {
         final TextView textView = (TextView)findViewById(R.id.coordinatesDraw);
         //textView.setText("you touched :");
         final View touchView=findViewById(R.id.drawDraw);
+
+        wordView= (TextView) findViewById(R.id.word);
 
         //CustomModel.getInstance().changeState(true);
 
@@ -41,5 +58,19 @@ public class DrawActivity extends Activity {
                 return true;
             }
         });
+
+        //mLatestWord=String.valueOf(mBLE.mWord);
+        wordView.setText(mLatestWord);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mBLE.stopAdvertising();
+        mBLE.shutdownServer();
+        Toast.makeText(this, "shutdownServer.", Toast.LENGTH_SHORT).show();
+
+    }
+
+
 }

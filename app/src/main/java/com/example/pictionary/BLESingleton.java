@@ -36,7 +36,6 @@ import java.util.ArrayList;
  * This is a singleton (unique static instantiation) and not a service, bc BLE is not needed in the
  * background and it is easier to implement : )
  *
- * TODO: try to reduce the number of public fields
  */
 public class BLESingleton extends ContextWrapper{
 
@@ -47,6 +46,7 @@ public class BLESingleton extends ContextWrapper{
     public float x;
     public float y;
     public float xCoord;
+    public int mWord;
 
 
     private BluetoothManager mBluetoothManager;
@@ -201,8 +201,9 @@ public class BLESingleton extends ContextWrapper{
                         requestId,
                         BluetoothGatt.GATT_SUCCESS,
                         0,
-                        DeviceProfile.bytesFromInt(mTimeOffset));
+                        DeviceProfile.bytesFromInt(mWord));
             }
+
 
             /*
              * Unless the characteristic supports WRITE_NO_RESPONSE,
@@ -215,6 +216,7 @@ public class BLESingleton extends ContextWrapper{
                     null);
         }
 
+        //callback triggered by a call to characateristic.write() method from the client
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device,
                                                  int requestId,
@@ -227,9 +229,11 @@ public class BLESingleton extends ContextWrapper{
             //Log.i(TAG, "onCharacteristicWriteRequest "+characteristic.getUuid().toString());
 
             if (DeviceProfile.CHARACTERISTIC_OFFSET_UUID.equals(characteristic.getUuid())) {
-                int newOffset = DeviceProfile.unsignedIntFromBytes(value);
-                setStoredValue(newOffset);
+                //int stringInBytes = DeviceProfile.unsignedIntFromBytes(value);
+                //mWord = (char) stringInBytes;
+                //setStoredValue(newOffset);
 
+                //resend data to confirm correct reception
                 if (responseNeeded) {
                     mGattServer.sendResponse(device,
                             requestId,
@@ -241,7 +245,7 @@ public class BLESingleton extends ContextWrapper{
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        //Toast.makeText(CreateActivity.this, "Time Offset Updated", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BLESingleton.this, "Word Sent: "+ mWord, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -361,6 +365,7 @@ public class BLESingleton extends ContextWrapper{
                     .getCharacteristic(DeviceProfile.CHARACTERISTIC_ELAPSED_UUID);
 
             readCharacteristic.setValue(DeviceProfile.bytesFromInt(x));
+
             mGattServer.notifyCharacteristicChanged(device, readCharacteristic, false);
         }
     }

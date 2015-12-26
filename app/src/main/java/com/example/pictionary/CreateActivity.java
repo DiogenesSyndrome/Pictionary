@@ -11,14 +11,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-
 public class CreateActivity extends Activity {
 
     private static final String TAG = "CreateActivity";
 
     private TextView textView;
     private View touchView;
+
 
     private float xCoord;
     private float yCoord;
@@ -33,7 +32,6 @@ public class CreateActivity extends Activity {
         setContentView(R.layout.activity_create);
 
         ListView list = (ListView)findViewById(R.id.list);
-        //setContentView(list);
 
         if(!mBLE.init()){
             Log.e(TAG, "error in BLE initialization");
@@ -69,12 +67,7 @@ public class CreateActivity extends Activity {
 
         //start game
         setButtonStartGame();
-
-        //CustomModel.getInstance().setListener(this);
-
-        boolean modelState = CustomModel.getInstance().getState();
-        Log.d(TAG, "Current state: " + String.valueOf(modelState));
-
+        setButtonExit();
     }
 
 
@@ -82,7 +75,7 @@ public class CreateActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-
+        //reconnect to previous ?
     }
 
     @Override
@@ -90,6 +83,13 @@ public class CreateActivity extends Activity {
         super.onPause();
         //mBLE.stopAdvertising();
        // mBLE.shutdownServer();
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        mBLE.stopAdvertising();
+        mBLE.shutdownServer();
     }
 
 
@@ -103,21 +103,14 @@ public class CreateActivity extends Activity {
         });
     }
 
-    /*
-    @Override
-    public void stateChanged() {
-
-        boolean modelState = CustomModel.getInstance().getState();
-        Log.d(TAG, "MainActivity says: Model state changed: " +
-                String.valueOf(modelState));
-
-        xCoord=CustomModel.getInstance().getValueX();
-        yCoord=CustomModel.getInstance().getValueY();
-
-        mBLE.x = xCoord;
-        mBLE.y = yCoord;
-        mBLE.notifyConnectedDevices();
-    }*/
-
+    public void setButtonExit(){
+        Button buttonStart = (Button) findViewById(R.id.button_exit);
+        buttonStart.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                //call onDestroy
+                finish();
+            }
+        });
+    }
 
 }
