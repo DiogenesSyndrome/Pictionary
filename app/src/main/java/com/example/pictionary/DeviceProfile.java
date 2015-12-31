@@ -2,6 +2,8 @@ package com.example.pictionary;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothProfile;
+import android.nfc.Tag;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -21,9 +23,9 @@ public class DeviceProfile {
     //Service UUID to expose our time characteristics
     public static UUID SERVICE_UUID = UUID.fromString("1706BBC0-88AB-4B8D-877E-2237916EE929");
     //Read-only characteristic providing number of elapsed seconds since offset
-    public static UUID CHARACTERISTIC_ELAPSED_UUID = UUID.fromString("275348FB-C14D-4FD5-B434-7C3F351DEA5F");
+    public static UUID CHARACTERISTIC_COORD_X_UUID = UUID.fromString("275348FB-C14D-4FD5-B434-7C3F351DEA5F");
     //Read-write characteristic for current offset timestamp
-    public static UUID CHARACTERISTIC_OFFSET_UUID = UUID.fromString("BD28E457-4026-4270-A99F-F9BC20182E15");
+    public static UUID CHARACTERISTIC_WORD_UUID = UUID.fromString("BD28E457-4026-4270-A99F-F9BC20182E15");
 
     public static String getStateDescription(int state) {
         switch (state) {
@@ -87,11 +89,21 @@ public class DeviceProfile {
                 .array();
     }
 
-    public static byte[] bytesFromString(String value){
-        ByteBuffer buf = ByteBuffer.allocate(value.length()*4).order(ByteOrder.LITTLE_ENDIAN);
-        for (int i=0 ; i < value.length(); i++){
-            buf.putChar(value.charAt(i));
-        }
-        return buf.array();
+    public static byte[] bytesFromString(String str){
+        //ByteBuffer buf = ByteBuffer.allocate(value.length()*2).order(ByteOrder.LITTLE_ENDIAN);
+        char[] buffer = str.toCharArray();
+        //allocate double length, as char is 2 bytes in java
+        byte[] b = new byte[buffer.length<<1];
+        CharBuffer cBuffer = ByteBuffer.wrap(b).asCharBuffer();
+        for(int i = 0; i < buffer.length; i++)
+            cBuffer.put(buffer[i]);
+        return b;
+    }
+
+    public static String stringFromBytes(byte[] bytes) {
+        if (bytes.length < 2) throw new IllegalArgumentException("Cannot convert raw data to string");
+        CharBuffer cBuffer = ByteBuffer.wrap(bytes).asCharBuffer();
+        return cBuffer.toString();
+
     }
 }

@@ -21,10 +21,15 @@
         android:layout_height="wrap_content"
         android:text="offset "/>
 
-    <Button
-        android:id="@+id/button_guess"
-        android:layout_width="match_parent"
+    <EditText android:id="@+id/edit_answer"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:text="GUESS"/>
+        android:hint="@string/type_answer" />
+
+    <Button
+        android:id="@+id/button_send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SEND"/>
 
 </LinearLayout>

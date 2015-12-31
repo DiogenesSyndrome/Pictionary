@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -51,6 +52,7 @@ public class JoinActivity extends Activity {
     /* Client UI elements */
     private TextView mLatestValue;
     private TextView mCurrentOffset;
+    private EditText answerBox;
 
     //TODO: call BLESingleton for all BLE functions
     @Override
@@ -71,7 +73,9 @@ public class JoinActivity extends Activity {
 
         mDevices = new SparseArray<BluetoothDevice>();
 
-        setButtonGuess();
+        answerBox = (EditText) findViewById(R.id.edit_answer);
+
+        setButtonSend();
         //onGetOffsetClick(mCurrentOffset);
     }
 
@@ -164,7 +168,7 @@ public class JoinActivity extends Activity {
 
                     BluetoothGattCharacteristic characteristic = mConnectedGatt
                             .getService(DeviceProfile.SERVICE_UUID)
-                            .getCharacteristic(DeviceProfile.CHARACTERISTIC_OFFSET_UUID);
+                            .getCharacteristic(DeviceProfile.CHARACTERISTIC_WORD_UUID);
                     byte[] value = DeviceProfile.bytesFromInt((int)(now.getTimeInMillis()/1000));
                     Log.d(TAG, "Writing value of size "+value.length);
                     characteristic.setValue(value);
@@ -185,7 +189,7 @@ public class JoinActivity extends Activity {
         if (mConnectedGatt != null) {
             BluetoothGattCharacteristic characteristic = mConnectedGatt
                     .getService(DeviceProfile.SERVICE_UUID)
-                    .getCharacteristic(DeviceProfile.CHARACTERISTIC_OFFSET_UUID);
+                    .getCharacteristic(DeviceProfile.CHARACTERISTIC_WORD_UUID);
 
             mConnectedGatt.readCharacteristic(characteristic);
             mCurrentOffset.setText("---");
@@ -248,7 +252,7 @@ public class JoinActivity extends Activity {
 
         @Override
         public void onScanFailed(int errorCode) {
-            Log.w(TAG, "LE Scan Failed: "+errorCode);
+            Log.w(TAG, "LE Scan Failed: " + errorCode);
         }
 
         private void processResult(ScanResult result) {
@@ -290,7 +294,7 @@ public class JoinActivity extends Activity {
 
                 if (DeviceProfile.SERVICE_UUID.equals(service.getUuid())) {
                     //Read the current characteristic's value
-                    gatt.readCharacteristic(service.getCharacteristic(DeviceProfile.CHARACTERISTIC_ELAPSED_UUID));
+                    gatt.readCharacteristic(service.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID));
                 }
             }
         }
@@ -303,7 +307,7 @@ public class JoinActivity extends Activity {
             super.onCharacteristicRead(gatt, characteristic, status);
             final int charValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
 
-            if (DeviceProfile.CHARACTERISTIC_ELAPSED_UUID.equals(characteristic.getUuid())) {
+            if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -315,7 +319,7 @@ public class JoinActivity extends Activity {
                 gatt.setCharacteristicNotification(characteristic, true);
             }
 
-            if (DeviceProfile.CHARACTERISTIC_OFFSET_UUID.equals(characteristic.getUuid())) {
+            if (DeviceProfile.CHARACTERISTIC_WORD_UUID.equals(characteristic.getUuid())) {
                 Log.d(TAG, "Current time offset: "+charValue);
                 mHandler.post(new Runnable() {
                     @Override
@@ -344,17 +348,19 @@ public class JoinActivity extends Activity {
         }
     };
 
-    public void setButtonGuess(){
-        Button buttonStart = (Button) findViewById(R.id.button_guess);
+    public void setButtonSend(){
+        final Button buttonStart = (Button) findViewById(R.id.button_send);
+
         buttonStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if(mConnectedGatt !=null) {
-                    String myWord ="guessguess";
+                    String myWord = answerBox.getText().toString();
+
                     byte[] value = DeviceProfile.bytesFromString(myWord);
 
                     BluetoothGattCharacteristic wordCharacteristic = mConnectedGatt
                             .getService(DeviceProfile.SERVICE_UUID)
-                            .getCharacteristic(DeviceProfile.CHARACTERISTIC_OFFSET_UUID);
+                            .getCharacteristic(DeviceProfile.CHARACTERISTIC_WORD_UUID);
                     wordCharacteristic.setValue(value);
 
                     mConnectedGatt.writeCharacteristic(wordCharacteristic);
@@ -363,4 +369,6 @@ public class JoinActivity extends Activity {
             }
         });
     }
+
+
 }

@@ -7,9 +7,13 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.HashSet;
 
 public class CreateActivity extends Activity {
 
@@ -24,6 +28,8 @@ public class CreateActivity extends Activity {
 
     //construct with specific context
     private BLESingleton mBLE = BLESingleton.getInstance(this);
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,11 @@ public class CreateActivity extends Activity {
         //start game
         setButtonStartGame();
         setButtonExit();
+
+        //create database
+        int size = Dictionary.addDictionary();
+        Log.i(TAG, "Dictionary loaded with " + size + " words");
+
     }
 
 
@@ -112,5 +123,8 @@ public class CreateActivity extends Activity {
             }
         });
     }
+
+
+
 
 }

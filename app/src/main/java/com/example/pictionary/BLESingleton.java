@@ -46,7 +46,7 @@ public class BLESingleton extends ContextWrapper{
     public float x;
     public float y;
     public float xCoord;
-    public int mWord;
+    public String mWord;
 
 
     private BluetoothManager mBluetoothManager;
@@ -141,12 +141,12 @@ public class BLESingleton extends ContextWrapper{
                 BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
         BluetoothGattCharacteristic elapsedCharacteristic =
-                new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_ELAPSED_UUID,
+                new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID,
                         //Read-only characteristic, supports notifications
                         BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY,
                         BluetoothGattCharacteristic.PERMISSION_READ);
         BluetoothGattCharacteristic offsetCharacteristic =
-                new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_OFFSET_UUID,
+                new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_WORD_UUID,
                         //Read+write permissions
                         BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_WRITE,
                         BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE);
@@ -165,11 +165,11 @@ public class BLESingleton extends ContextWrapper{
         @Override
         public void onConnectionStateChange(BluetoothDevice device, int status, int newState) {
             super.onConnectionStateChange(device, status, newState);
-            /*
+
             Log.i(TAG, "onConnectionStateChange "
                     +DeviceProfile.getStatusDescription(status)+" "
                     +DeviceProfile.getStateDescription(newState));
-                    */
+
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 postDeviceChange(device, true);
@@ -188,7 +188,7 @@ public class BLESingleton extends ContextWrapper{
             super.onCharacteristicReadRequest(device, requestId, offset, characteristic);
             //Log.i(TAG, "onCharacteristicReadRequest " + characteristic.getUuid().toString());
 
-            if (DeviceProfile.CHARACTERISTIC_ELAPSED_UUID.equals(characteristic.getUuid())) {
+            if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
                 mGattServer.sendResponse(device,
                         requestId,
                         BluetoothGatt.GATT_SUCCESS,
@@ -196,12 +196,12 @@ public class BLESingleton extends ContextWrapper{
                         DeviceProfile.bytesFromInt(xCoord));
             }
 
-            if (DeviceProfile.CHARACTERISTIC_OFFSET_UUID.equals(characteristic.getUuid())) {
+            if (DeviceProfile.CHARACTERISTIC_WORD_UUID.equals(characteristic.getUuid())) {
                 mGattServer.sendResponse(device,
                         requestId,
                         BluetoothGatt.GATT_SUCCESS,
                         0,
-                        DeviceProfile.bytesFromInt(mWord));
+                        DeviceProfile.bytesFromString(mWord));
             }
 
 
@@ -228,9 +228,9 @@ public class BLESingleton extends ContextWrapper{
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite, responseNeeded, offset, value);
             //Log.i(TAG, "onCharacteristicWriteRequest "+characteristic.getUuid().toString());
 
-            if (DeviceProfile.CHARACTERISTIC_OFFSET_UUID.equals(characteristic.getUuid())) {
+            if (DeviceProfile.CHARACTERISTIC_WORD_UUID.equals(characteristic.getUuid())) {
                 //int stringInBytes = DeviceProfile.unsignedIntFromBytes(value);
-                //mWord = (char) stringInBytes;
+                mWord = DeviceProfile.stringFromBytes(value);
                 //setStoredValue(newOffset);
 
                 //resend data to confirm correct reception
@@ -246,6 +246,10 @@ public class BLESingleton extends ContextWrapper{
                     @Override
                     public void run() {
                         Toast.makeText(BLESingleton.this, "Word Sent: "+ mWord, Toast.LENGTH_SHORT).show();
+                        if(Dictionary.checkDictionary(mWord)==true)
+                            Toast.makeText(BLESingleton.this, "COrrect", Toast.LENGTH_SHORT).show();
+                        else
+                            Toast.makeText(BLESingleton.this, "FALSE", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -303,6 +307,8 @@ public class BLESingleton extends ContextWrapper{
         if (mBluetoothLeAdvertiser == null) return;
 
         mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
+        Log.i(TAG, "Peripheral Advertise Stopped.");
+
     }
 
     /*
@@ -312,13 +318,13 @@ public class BLESingleton extends ContextWrapper{
     public AdvertiseCallback mAdvertiseCallback = new AdvertiseCallback() {
         @Override
         public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-            //Log.i(TAG, "Peripheral Advertise Started.");
+            Log.i(TAG, "Peripheral Advertise Started.");
             //postStatusMessage("GATT Server Ready");
         }
 
         @Override
         public void onStartFailure(int errorCode) {
-            //Log.w(TAG, "Peripheral Advertise Failed: "+errorCode);
+            Log.w(TAG, "Peripheral Advertise Failed: "+errorCode);
             //postStatusMessage("GATT Server Error "+errorCode);
         }
     };
@@ -362,7 +368,7 @@ public class BLESingleton extends ContextWrapper{
     public void notifyConnectedDevices() {
         for (BluetoothDevice device : mConnectedDevices) {
             BluetoothGattCharacteristic readCharacteristic = mGattServer.getService(DeviceProfile.SERVICE_UUID)
-                    .getCharacteristic(DeviceProfile.CHARACTERISTIC_ELAPSED_UUID);
+                    .getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID);
 
             readCharacteristic.setValue(DeviceProfile.bytesFromInt(x));
 
