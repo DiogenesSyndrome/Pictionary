@@ -18,8 +18,8 @@ public class Dictionary {
     public static HashSet<String> hset = new HashSet<String>();
 
     public static int addDictionary(){
-        //TODO: do in a separate ressource / java file
 
+        //TODO: do in a separate ressource / java file
         String[] dictionary = {"house", "car","dollar"};
 
         for (String s : dictionary){

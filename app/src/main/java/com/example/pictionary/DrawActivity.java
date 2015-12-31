@@ -15,12 +15,13 @@ import android.widget.TextView;
 import android.os.Handler;
 import android.widget.Toast;
 
-public class DrawActivity extends Activity {
+public class DrawActivity extends Activity implements BLESingleton.onWordListener {
 
     private static final String TAG = "DrawActivity";
     private float xCoord;
     private float yCoord;
     private BLESingleton mBLE= BLESingleton.getInstance();
+
 
     private String mLatestWord ="no guess word for now";
     private TextView wordView;
@@ -39,8 +40,8 @@ public class DrawActivity extends Activity {
 
         wordView= (TextView) findViewById(R.id.word);
 
-        //CustomModel.getInstance().changeState(true);
-
+        // do not forget to reference THIS for listener initialization
+        mBLE.setWordListener(this);
 
         //define here a new method of View, which extends/implements the onTouchListener interface
         //OnTouchListener calls back onTouch on each MotionEvent
@@ -55,12 +56,12 @@ public class DrawActivity extends Activity {
                 //return true to consume Event from buffer so it allows continous callbacks
                 //CustomModel.getInstance().changeState(xCoord, yCoord);
                 mBLE.x = xCoord;
+
                 return true;
             }
         });
 
         //mLatestWord=String.valueOf(mBLE.mWord);
-        wordView.setText(mLatestWord);
     }
 
     @Override
@@ -72,5 +73,18 @@ public class DrawActivity extends Activity {
 
     }
 
+    //interface implementation
+    @Override
+    public void wordReceived(){
+
+        Log.i(TAG, "wor received ; " + mBLE.mWord);
+        /*
+        wordView.setText(mBLE.mWord);
+        if (Dictionary.checkDictionary(mLatestWord))
+            Toast.makeText(this, "PLAYER X WINS", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, "guess attempt", Toast.LENGTH_SHORT).show();
+            */
+    }
 
 }

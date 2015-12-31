@@ -42,6 +42,11 @@ public class BLESingleton extends ContextWrapper{
     private static final String TAG = "BLESingleton";
     private static BLESingleton mInstance = null;
 
+    public interface onWordListener{
+        void wordReceived();
+    }
+    public onWordListener mWordListener;
+
     //TODO: CHANGE THIS URGENTLY
     public float x;
     public float y;
@@ -61,6 +66,7 @@ public class BLESingleton extends ContextWrapper{
     private BLESingleton(Context base) {
         super(base);
     }
+
 
     public static BLESingleton getInstance(Context base) {
         // Context can be instantiated only once
@@ -231,7 +237,9 @@ public class BLESingleton extends ContextWrapper{
             if (DeviceProfile.CHARACTERISTIC_WORD_UUID.equals(characteristic.getUuid())) {
                 //int stringInBytes = DeviceProfile.unsignedIntFromBytes(value);
                 mWord = DeviceProfile.stringFromBytes(value);
-                //setStoredValue(newOffset);
+                //notify all classes that implement the interface
+                if (mWordListener!=null)
+                    mWordListener.wordReceived();
 
                 //resend data to confirm correct reception
                 if (responseNeeded) {
@@ -246,10 +254,6 @@ public class BLESingleton extends ContextWrapper{
                     @Override
                     public void run() {
                         Toast.makeText(BLESingleton.this, "Word Sent: "+ mWord, Toast.LENGTH_SHORT).show();
-                        if(Dictionary.checkDictionary(mWord)==true)
-                            Toast.makeText(BLESingleton.this, "COrrect", Toast.LENGTH_SHORT).show();
-                        else
-                            Toast.makeText(BLESingleton.this, "FALSE", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -392,7 +396,9 @@ public class BLESingleton extends ContextWrapper{
         }
     }
 
-
+    public void setWordListener(onWordListener listener){
+        mWordListener = listener;
+    }
 
 
 
