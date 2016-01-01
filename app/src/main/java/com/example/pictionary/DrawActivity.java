@@ -1,11 +1,7 @@
 package com.example.pictionary;
 
 import android.app.Activity;
-import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCallback;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
-import android.bluetooth.BluetoothProfile;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -18,8 +14,7 @@ import android.widget.Toast;
 public class DrawActivity extends Activity implements BLESingleton.onWordListener {
 
     private static final String TAG = "DrawActivity";
-    private float xCoord;
-    private float yCoord;
+
     private BLESingleton mBLE= BLESingleton.getInstance();
 
 
@@ -38,6 +33,7 @@ public class DrawActivity extends Activity implements BLESingleton.onWordListene
         //textView.setText("you touched :");
         final View touchView=findViewById(R.id.drawDraw);
 
+
         wordView= (TextView) findViewById(R.id.word);
 
         // do not forget to reference THIS for listener initialization
@@ -48,14 +44,14 @@ public class DrawActivity extends Activity implements BLESingleton.onWordListene
         touchView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                xCoord = event.getX();
-                yCoord = event.getY();
+                float x = event.getX();
+                float y = event.getY();
 
-                textView.setText("you touched: " + String.valueOf(xCoord)
-                        + 'x' + String.valueOf(yCoord));
+                textView.setText("you touched: " + String.valueOf(x)
+                        + 'x' + String.valueOf(y));
                 //return true to consume Event from buffer so it allows continous callbacks
                 //CustomModel.getInstance().changeState(xCoord, yCoord);
-                mBLE.x = xCoord;
+                mBLE.setCoordinates(x, y);
 
                 return true;
             }
@@ -77,14 +73,21 @@ public class DrawActivity extends Activity implements BLESingleton.onWordListene
     @Override
     public void wordReceived(){
 
-        Log.i(TAG, "wor received ; " + mBLE.mWord);
-        /*
-        wordView.setText(mBLE.mWord);
-        if (Dictionary.checkDictionary(mLatestWord))
-            Toast.makeText(this, "PLAYER X WINS", Toast.LENGTH_SHORT).show();
-        else
-            Toast.makeText(this, "guess attempt", Toast.LENGTH_SHORT).show();
-            */
+        final String word = mBLE.getWord();
+        Log.i(TAG, "word received : " + word);
+
+        //cannot manipulate anything directly in the UI without being in onCreate, so use Runnable
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                wordView.setText(word);
+                if (Dictionary.checkDictionary(word)==true)
+                    Toast.makeText(DrawActivity.this, "PLAYER X WINS", Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(DrawActivity.this, "guess attempt", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
 }

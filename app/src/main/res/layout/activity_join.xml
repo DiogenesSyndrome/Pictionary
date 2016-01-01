@@ -10,7 +10,13 @@
     tools:context="com.example.pictionary.JoinActivity">
 
     <TextView
-        android:id="@+id/latest_value"
+        android:id="@+id/x_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="latest x" />
+
+    <TextView
+        android:id="@+id/y_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="latest" />

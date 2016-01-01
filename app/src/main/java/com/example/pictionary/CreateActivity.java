@@ -21,11 +21,6 @@ public class CreateActivity extends Activity {
 
     private TextView textView;
     private View touchView;
-
-
-    private float xCoord;
-    private float yCoord;
-
     //construct with specific context
     private BLESingleton mBLE = BLESingleton.getInstance(this);
 
@@ -55,21 +50,21 @@ public class CreateActivity extends Activity {
 
         //define here a new method of View, which extends/implements the onTouchListener interface
         //OnTouchListener calls back onTouch on each MotionEvent
+        /*
         touchView.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    xCoord= event.getX();
-                    yCoord= event.getY();
-
-                    textView.setText("you touched: " + String.valueOf(xCoord)
-                            + 'x' + String.valueOf(yCoord));
+                    //mBLE.xCoord= event.getX();
+                    //mBLE.yCoord= event.getY();
+                    mBLE.setCoordinates(event.getX(),event.getY());
+                    //textView.setText("you touched: " + String.valueOf(xCoord)
+                      //      + 'x' + String.valueOf(yCoord));
                     //return true to consume Event from buffer so it allows continous callbacks
 
-                    mBLE.x = xCoord;
-                    mBLE.y = yCoord;
                     return true;
                 }
         });
+        */
 
         //start game
         setButtonStartGame();

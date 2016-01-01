@@ -50,9 +50,13 @@ public class JoinActivity extends Activity {
     private Handler mHandler = new Handler();
 
     /* Client UI elements */
-    private TextView mLatestValue;
+    private TextView mLatestValueX;
+    private TextView mLatestValueY;
+
     private TextView mCurrentOffset;
     private EditText answerBox;
+
+    private boolean mutex = false;
 
     //TODO: call BLESingleton for all BLE functions
     @Override
@@ -60,7 +64,9 @@ public class JoinActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_join);
 
-        mLatestValue = (TextView) findViewById(R.id.latest_value);
+        mLatestValueX = (TextView) findViewById(R.id.x_value);
+        mLatestValueY = (TextView) findViewById(R.id.y_value);
+
         mCurrentOffset = (TextView) findViewById(R.id.offset_date);
         updateDateText(0);
 
@@ -149,37 +155,6 @@ public class JoinActivity extends Activity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
-    /*
-     * Select a new time to set as the base offset
-     * on the GATT Server. Then write to the characteristic.
-     */
-    /*
-    public void onUpdateClick(View v) {
-        if (mConnectedGatt != null) {
-            final Calendar now = Calendar.getInstance();
-            TimePickerDialog dialog = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-                @Override
-                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                    now.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                    now.set(Calendar.MINUTE, minute);
-                    now.set(Calendar.SECOND, 0);
-                    now.set(Calendar.MILLISECOND, 0);
-
-                    BluetoothGattCharacteristic characteristic = mConnectedGatt
-                            .getService(DeviceProfile.SERVICE_UUID)
-                            .getCharacteristic(DeviceProfile.CHARACTERISTIC_WORD_UUID);
-                    byte[] value = DeviceProfile.bytesFromInt((int)(now.getTimeInMillis()/1000));
-                    Log.d(TAG, "Writing value of size "+value.length);
-                    characteristic.setValue(value);
-
-                    mConnectedGatt.writeCharacteristic(characteristic);
-                }
-            }, now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), false);
-            dialog.show();
-        }
-    }
-    */
 
     /*
      * Retrieve the current value of the time offset
@@ -293,13 +268,37 @@ public class JoinActivity extends Activity {
                 Log.d(TAG, "Service: "+service.getUuid());
 
                 if (DeviceProfile.SERVICE_UUID.equals(service.getUuid())) {
-                    //Read the current characteristic's value
-                    gatt.readCharacteristic(service.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID));
+                    List<BluetoothGattCharacteristic> characteristicList =
+                            gatt.getService(DeviceProfile.SERVICE_UUID).getCharacteristics();
+                    BluetoothGattCharacteristic characteristic;
+
+                    /*
+                    for (BluetoothGattCharacteristic charact : characteristicList){
+                        Log.d(TAG, "charact " + charact.getUuid());
+                    }
+                    */
+
+                    characteristic = service.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID);
+                    gatt.readCharacteristic(characteristic);
+                    Log.i(TAG, "successfully initialized x Coord characteristic");
+                    //Register for further updates as notifications
+                    if(gatt.setCharacteristicNotification(characteristic, true))
+                        Log.i(TAG, "successfully set notifications for x coord");
+
+                    characteristic = service.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_Y_UUID);
+                    gatt.readCharacteristic(characteristic);
+                    Log.i(TAG, "successfully initialized y Coord characteristic");
+                    //Register for further updates as notifications
+                    if(gatt.setCharacteristicNotification(characteristic, true));
+                        Log.i(TAG, "successfully set notifications for y coord");
+
+                    }
+
                 }
-            }
+
         }
 
-        //Callback reporting the result of a characteristic read operation.
+        //Callback reporting the result of a readCharacterstic operation
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
@@ -307,17 +306,33 @@ public class JoinActivity extends Activity {
             super.onCharacteristicRead(gatt, characteristic, status);
             final int charValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
 
+            //switch/ case
+
             if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mLatestValue.setText(String.valueOf(charValue));
+                        mLatestValueX.setText(String.valueOf(charValue));
+                    }
+                });
+
+
+
+            }
+
+            if (DeviceProfile.CHARACTERISTIC_COORD_Y_UUID.equals(characteristic.getUuid())) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLatestValueY.setText(String.valueOf(charValue));
                     }
                 });
 
                 //Register for further updates as notifications
-                gatt.setCharacteristicNotification(characteristic, true);
+                //if(gatt.setCharacteristicNotification(characteristic, true))
+                   // Log.i(TAG, "successfully set notifications for y coord");
             }
+
 
             if (DeviceProfile.CHARACTERISTIC_WORD_UUID.equals(characteristic.getUuid())) {
                 Log.d(TAG, "Current time offset: "+charValue);
@@ -329,22 +344,35 @@ public class JoinActivity extends Activity {
                     }
                 });
             }
+
         }
 
         //this callback is triggered by a notification from the remote device
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
+                                            final BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
             final int charValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
-            Log.i(TAG, "Notification of time characteristic changed on server." );
 
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    mLatestValue.setText(String.valueOf(charValue));
-                }
-            });
+            //TODO: change charac only when necessary
+            //Log.i(TAG, "Notification of time characteristic changed on server.");
+
+            if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLatestValueX.setText(String.valueOf(charValue));
+                    }
+                });
+            }
+            else if (DeviceProfile.CHARACTERISTIC_COORD_Y_UUID.equals(characteristic.getUuid())) {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mLatestValueY.setText(String.valueOf(charValue));
+                    }
+                });
+            }
         }
     };
 
@@ -353,7 +381,7 @@ public class JoinActivity extends Activity {
 
         buttonStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(mConnectedGatt !=null) {
+                if (mConnectedGatt != null) {
                     String myWord = answerBox.getText().toString();
 
                     byte[] value = DeviceProfile.bytesFromString(myWord);
@@ -370,5 +398,11 @@ public class JoinActivity extends Activity {
         });
     }
 
+/*
+    private void readCharacteristics(BluetoothGatt gatt, BluetoothGattService service){
+        isReading = gatt.readCharacteristic(service.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID));
+
+    }
+    */
 
 }
