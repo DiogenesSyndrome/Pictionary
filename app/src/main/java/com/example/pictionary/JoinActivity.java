@@ -291,7 +291,6 @@ public class JoinActivity extends Activity {
                     //Register for further updates as notifications
                     if(gatt.setCharacteristicNotification(characteristic, true));
                         Log.i(TAG, "successfully set notifications for y coord");
-
                     }
 
                 }
@@ -315,9 +314,6 @@ public class JoinActivity extends Activity {
                         mLatestValueX.setText(String.valueOf(charValue));
                     }
                 });
-
-
-
             }
 
             if (DeviceProfile.CHARACTERISTIC_COORD_Y_UUID.equals(characteristic.getUuid())) {

@@ -293,7 +293,7 @@ public class BLESingleton extends ContextWrapper{
         public void run() {
             notifyConnectedDevices();
             mHandler.postDelayed(this, 50);
-            notifyConnectedDevicesY();
+            //notifyConnectedDevicesY();
         }
     };
 
@@ -387,32 +387,15 @@ public class BLESingleton extends ContextWrapper{
         for (BluetoothDevice device : mConnectedDevices) {
             BluetoothGattCharacteristic readCharacteristicX = mGattServer.getService(DeviceProfile.SERVICE_UUID)
                     .getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID);
-           //BluetoothGattCharacteristic readCharacteristicY = mGattServer.getService(DeviceProfile.SERVICE_UUID)
-                   //.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_Y_UUID);
+            BluetoothGattCharacteristic readCharacteristicY = mGattServer.getService(DeviceProfile.SERVICE_UUID)
+                    .getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_Y_UUID);
 
             readCharacteristicX.setValue(DeviceProfile.bytesFromInt(xCoord));
-            //readCharacteristicX.setValue(DeviceProfile.bytesFromInt(yCoord));
+            readCharacteristicY.setValue(DeviceProfile.bytesFromInt(yCoord));
 
 
             mGattServer.notifyCharacteristicChanged(device, readCharacteristicX, false);
-            //mGattServer.notifyCharacteristicChanged(device, readCharacteristicY, false);
-
-        }
-    }
-
-    public void notifyConnectedDevicesY() {
-        for (BluetoothDevice device : mConnectedDevices) {
-            BluetoothGattCharacteristic readCharacteristicY = mGattServer.getService(DeviceProfile.SERVICE_UUID)
-                    .getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_Y_UUID);
-            //BluetoothGattCharacteristic readCharacteristicY = mGattServer.getService(DeviceProfile.SERVICE_UUID)
-            //.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_Y_UUID);
-
-            readCharacteristicY.setValue(DeviceProfile.bytesFromInt(yCoord));
-            //readCharacteristicX.setValue(DeviceProfile.bytesFromInt(yCoord));
-
-
             mGattServer.notifyCharacteristicChanged(device, readCharacteristicY, false);
-            //mGattServer.notifyCharacteristicChanged(device, readCharacteristicY, false);
 
         }
     }
