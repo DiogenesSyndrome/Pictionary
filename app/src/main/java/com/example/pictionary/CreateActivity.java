@@ -24,8 +24,6 @@ public class CreateActivity extends Activity {
     //construct with specific context
     private BLESingleton mBLE = BLESingleton.getInstance(this);
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
