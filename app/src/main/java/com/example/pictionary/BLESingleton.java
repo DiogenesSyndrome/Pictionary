@@ -47,11 +47,9 @@ public class BLESingleton extends ContextWrapper{
     }
     public onWordListener mWordListener;
 
-    //TODO: CHANGE THIS URGENTLY
     private float xCoord;
     private float yCoord;
     private String mWord;
-
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -65,7 +63,6 @@ public class BLESingleton extends ContextWrapper{
     private BLESingleton(Context base) {
         super(base);
     }
-
 
     public static BLESingleton getInstance(Context base) {
         // Context can be instantiated only once
@@ -348,17 +345,6 @@ public class BLESingleton extends ContextWrapper{
     };
 
     public Handler mHandler = new Handler();
-    /*
-    private void postStatusMessage(final String message) {
-        mBLE.mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                setTitle(message);
-            }
-        });
-    }
-    */
-
 
     private void postDeviceChange(final BluetoothDevice device, final boolean toAdd) {
         mHandler.post(new Runnable() {
@@ -400,21 +386,6 @@ public class BLESingleton extends ContextWrapper{
         }
     }
 
-    private Object mLock = new Object();
-
-    private int mTimeOffset;
-
-    private byte[] getStoredValue() {
-        synchronized (mLock) {
-            return DeviceProfile.getShiftedTimeValue(mTimeOffset);
-        }
-    }
-
-    private void setStoredValue(int newOffset) {
-        synchronized (mLock) {
-            mTimeOffset = newOffset;
-        }
-    }
 
     public void setWordListener(onWordListener listener){
         mWordListener = listener;
@@ -424,7 +395,7 @@ public class BLESingleton extends ContextWrapper{
         return mWord;
     }
 
-    public void setmWord(String s){
+    public void setWord(String s){
         mWord= s;
     }
 

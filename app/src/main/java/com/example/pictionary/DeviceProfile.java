@@ -29,6 +29,10 @@ public class DeviceProfile {
     //public static UUID CHARACTERISTIC_COORD_Y_UUID = UUID.fromString("ef0abc14-06a1-4da5-9e96-1fc8cef5eeed");
     public static UUID CHARACTERISTIC_COORD_Y_UUID = UUID.fromString("275348FB-C14D-4FD5-B434-7C3F351DEA5F");
 
+    public static UUID CHARACTERISTIC_ACTION_UUID = UUID.fromString("ddbe47d3-6881-465a-a0ce-5ba04a18f28c");
+    //public static UUID CHARACTERISTIC_PEN_SIZE_UUID = UUID.fromString("ddbe47d3-6881-465a-a0ce-5ba04a18f28c");
+
+
     //Read-write characteristic for current offset timestamp
     public static UUID CHARACTERISTIC_WORD_UUID = UUID.fromString("BD28E457-4026-4270-A99F-F9BC20182E15");
 

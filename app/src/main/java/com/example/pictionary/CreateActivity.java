@@ -39,30 +39,14 @@ public class CreateActivity extends Activity {
             return;
         }
 
+        //show list of all remote connected devices
+        //TODO: show names instead of horrible MAC addresses
         list.setAdapter(mBLE.mConnectedDevicesAdapter);
 
         //display touchpad coordinates
         textView = (TextView)findViewById(R.id.coordinates);
         //textView.setText("you touched :");
         touchView=findViewById(R.id.draw);
-
-        //define here a new method of View, which extends/implements the onTouchListener interface
-        //OnTouchListener calls back onTouch on each MotionEvent
-        /*
-        touchView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    //mBLE.xCoord= event.getX();
-                    //mBLE.yCoord= event.getY();
-                    mBLE.setCoordinates(event.getX(),event.getY());
-                    //textView.setText("you touched: " + String.valueOf(xCoord)
-                      //      + 'x' + String.valueOf(yCoord));
-                    //return true to consume Event from buffer so it allows continous callbacks
-
-                    return true;
-                }
-        });
-        */
 
         //start game
         setButtonStartGame();
@@ -79,7 +63,8 @@ public class CreateActivity extends Activity {
     protected void onResume() {
         super.onResume();
 
-        //reconnect to previous ?
+        //automatically restart server if it was killed
+
     }
 
     @Override
@@ -94,6 +79,10 @@ public class CreateActivity extends Activity {
         super.onDestroy();
         mBLE.stopAdvertising();
         mBLE.shutdownServer();
+
+        //java Garbage collector takes care
+        mBLE = null;
+
     }
 
 

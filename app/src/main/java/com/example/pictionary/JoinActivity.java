@@ -58,7 +58,6 @@ public class JoinActivity extends Activity {
 
     private boolean mutex = false;
 
-    //TODO: call BLESingleton for all BLE functions
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,9 +65,6 @@ public class JoinActivity extends Activity {
 
         mLatestValueX = (TextView) findViewById(R.id.x_value);
         mLatestValueY = (TextView) findViewById(R.id.y_value);
-
-        mCurrentOffset = (TextView) findViewById(R.id.offset_date);
-        updateDateText(0);
 
         /*
          * Bluetooth in Android 4.3+ is accessed via the BluetoothManager, rather than
@@ -113,8 +109,17 @@ public class JoinActivity extends Activity {
     }
 
     @Override
+    protected void onPause(){
+        super.onPause();
+        Log.i(TAG, "Activity on Pause");
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
+        Log.i(TAG, "Activity stopped");
+
+        /*
         //Stop any active scans
         stopScan();
         //Disconnect from any active connection
@@ -122,6 +127,20 @@ public class JoinActivity extends Activity {
             mConnectedGatt.disconnect();
             mConnectedGatt = null;
         }
+        */
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        //Stop any active scans
+        stopScan();
+        //Disconnect from any active connection
+        if (mConnectedGatt != null) {
+            mConnectedGatt.disconnect();
+            mConnectedGatt = null;
+        }
+
     }
 
     @Override
@@ -154,28 +173,6 @@ public class JoinActivity extends Activity {
                 mConnectedGatt = device.connectGatt(this, false, mGattCallback);
                 return super.onOptionsItemSelected(item);
         }
-    }
-
-    /*
-     * Retrieve the current value of the time offset
-     */
-    /*
-    public void onGetOffsetClick(View v) {
-        if (mConnectedGatt != null) {
-            BluetoothGattCharacteristic characteristic = mConnectedGatt
-                    .getService(DeviceProfile.SERVICE_UUID)
-                    .getCharacteristic(DeviceProfile.CHARACTERISTIC_WORD_UUID);
-
-            mConnectedGatt.readCharacteristic(characteristic);
-            mCurrentOffset.setText("---");
-        }
-    }
-    */
-
-    private void updateDateText(long offset) {
-        Date date = new Date(offset);
-        String dateString = DateFormat.getDateTimeInstance().format(date);
-        mCurrentOffset.setText(dateString);
     }
 
     /*
@@ -394,11 +391,5 @@ public class JoinActivity extends Activity {
         });
     }
 
-/*
-    private void readCharacteristics(BluetoothGatt gatt, BluetoothGattService service){
-        isReading = gatt.readCharacteristic(service.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID));
-
-    }
-    */
 
 }

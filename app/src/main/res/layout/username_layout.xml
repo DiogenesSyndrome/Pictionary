@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent">
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TableRow
+            android:layout_height="@dimen/dialog_frame_size"
+            android:layout_width="match_parent">
+
+            <ImageView
+                android:layout_width="@dimen/dialog_frame_size"
+                android:layout_height="match_parent"
+                android:src="@drawable/top_left"
+                android:scaleType="fitXY"/>
+
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dialog_frame_size"
+                android:src="@drawable/top"
+                android:scaleType="fitXY"/>
+
+            <ImageView
+                android:layout_width="@dimen/dialog_frame_size"
+                android:layout_height="match_parent"
+                android:src="@drawable/top_right"
+                android:scaleType="fitXY"/>
+        </TableRow>
+
+
+        <TableRow
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+            <ImageView
+                android:layout_width="@dimen/dialog_frame_size"
+                android:layout_height="match_parent"
+                android:src="@drawable/left"
+                android:scaleType="fitXY"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/background">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:gravity="center"
+                    android:text="Choose an Username"
+                    android:textSize="20sp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/black"></LinearLayout>
+
+                <EditText
+                    android:id="@+id/username_edit_text"
+                    android:inputType="textPersonName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:hint="@string/username" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="64dp"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                        <Button
+                            android:id="@+id/username_cancel"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="Cancel"/>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+                        <Button
+                            android:id="@+id/username_confirm"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:text="Confirm"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="@dimen/dialog_frame_size"
+                android:layout_height="match_parent"
+                android:src="@drawable/right"
+                android:scaleType="fitXY"/>
+        </TableRow>
+
+
+        <TableRow
+            android:layout_height="@dimen/dialog_frame_size"
+            android:layout_width="match_parent">
+
+            <ImageView
+                android:layout_width="@dimen/dialog_frame_size"
+                android:layout_height="match_parent"
+                android:src="@drawable/bottom_left"
+                android:scaleType="fitXY"/>
+
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dialog_frame_size"
+                android:src="@drawable/bottom"
+                android:scaleType="fitXY"/>
+
+            <ImageView
+                android:layout_width="@dimen/dialog_frame_size"
+                android:layout_height="match_parent"
+                android:src="@drawable/bottom_right"
+                android:scaleType="fitXY"/>
+        </TableRow>
+
+    </TableLayout>
+
+</LinearLayout>

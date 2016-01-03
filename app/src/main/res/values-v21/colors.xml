@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="green">#55c155</color>
+    <color name="red">#ff3636</color>
+    <color name="grey">#777777</color>
+    <color name="blue">#559bff</color>
+    <color name="black">#111111</color>
+    <color name="white">#ffffff</color>
+    <color name="background">#f7c764</color>
+    <color name="transparent">#80000000</color>
+    <color name="frame_1">#aaaaaa</color>
+    <color name="frame_2">#999999</color>
+    <color name="frame_3">#777777</color>
+    <color name="frame_4">#555555</color>
+    <color name="frame_5">#333333</color>
+
+</resources>

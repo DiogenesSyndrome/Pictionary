@@ -21,16 +21,11 @@
         android:layout_height="wrap_content"
         android:text="latest" />
 
-    <TextView
-        android:id="@+id/offset_date"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="offset "/>
 
     <EditText android:id="@+id/edit_answer"
         android:layout_width="200dp"
         android:layout_height="wrap_content"
-        android:hint="@string/type_answer" />
+        android:hint="type_answer" />
 
     <Button
         android:id="@+id/button_send"
