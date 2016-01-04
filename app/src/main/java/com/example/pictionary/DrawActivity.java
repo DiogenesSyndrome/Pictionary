@@ -2,16 +2,12 @@ package com.example.pictionary;
 
 import android.app.Activity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.support.v4.content.ContextCompat;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import android.os.Handler;
@@ -52,6 +48,7 @@ public class DrawActivity extends Activity implements BLESingleton.onWordListene
     private BLESingleton mBLE= BLESingleton.getInstance();
     private TextView wordView;
 
+    public TextView mClientCoord;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +59,7 @@ public class DrawActivity extends Activity implements BLESingleton.onWordListene
         final TextView textView = (TextView)findViewById(R.id.coordinatesDraw);
         //textView.setText("you touched :");
         final View touchView=findViewById(R.id.drawDraw);
+
 
         wordView= (TextView) findViewById(R.id.word);
 

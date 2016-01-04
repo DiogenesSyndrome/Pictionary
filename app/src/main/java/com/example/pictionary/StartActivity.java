@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
+import android.nfc.Tag;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -21,6 +23,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class StartActivity extends Activity {
+
+    public final String TAG ="StartActivity";
 
     //creating new branch
     Context context = this;
@@ -84,6 +88,8 @@ public class StartActivity extends Activity {
                 }
             }
         };
+
+
 
     }
 

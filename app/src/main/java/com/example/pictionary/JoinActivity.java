@@ -1,7 +1,6 @@
 package com.example.pictionary;
 
 import android.app.Activity;
-import android.app.TimePickerDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -23,6 +22,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,9 +36,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+
 public class JoinActivity extends Activity {
 
     private static final String TAG = "ClientActivity";
+
+    //TODO: define variable somewheere as  as GUESSING = 1 , DRAWING  = 0
+    public static int status =1;
 
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
@@ -53,10 +57,12 @@ public class JoinActivity extends Activity {
     private TextView mLatestValueX;
     private TextView mLatestValueY;
 
-    private TextView mCurrentOffset;
+    private TextView textView;
     private EditText answerBox;
+    private View touchView;
 
-    private boolean mutex = false;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +71,9 @@ public class JoinActivity extends Activity {
 
         mLatestValueX = (TextView) findViewById(R.id.x_value);
         mLatestValueY = (TextView) findViewById(R.id.y_value);
+
+        textView=(TextView)findViewById(R.id.draw_coordinates);
+        touchView=findViewById(R.id.touch_button);
 
         /*
          * Bluetooth in Android 4.3+ is accessed via the BluetoothManager, rather than
@@ -78,7 +87,41 @@ public class JoinActivity extends Activity {
         answerBox = (EditText) findViewById(R.id.edit_answer);
 
         setButtonSend();
-        //onGetOffsetClick(mCurrentOffset);
+
+        //TODO: change status thing
+        if(status==1){
+            touchView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    float x = event.getX();
+                    float y = event.getY();
+
+
+                    textView.setText("you touched: " + String.valueOf(x)
+                            + 'x' + String.valueOf(y));
+                    //return true to consume Event from buffer so it allows continous callbacks
+
+                    if (mConnectedGatt != null) {
+                        float [] array = {x,y};
+
+                        Log.i(TAG, "array is : " +array[0] +array[1] );
+                        BluetoothGattCharacteristic xyCharacteristic = mConnectedGatt
+                                .getService(DeviceProfile.SERVICE_UUID)
+                                .getCharacteristic(DeviceProfile.CHARACTERISTIC_XY_UUID);
+
+                            xyCharacteristic.setValue(DeviceProfile.bytesFromArray(array));
+
+                            mConnectedGatt.writeCharacteristic(xyCharacteristic);
+
+                    }
+
+                    //Log.i(TAG, "Just send x coord: " + x+ "Just send y coord: " + y);
+
+                    return true;
+                }
+            });
+
+        }
     }
 
     @Override
@@ -328,7 +371,6 @@ public class JoinActivity extends Activity {
 
 
             if (DeviceProfile.CHARACTERISTIC_WORD_UUID.equals(characteristic.getUuid())) {
-                Log.d(TAG, "Current time offset: "+charValue);
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -348,7 +390,6 @@ public class JoinActivity extends Activity {
             final int charValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
 
             //TODO: change charac only when necessary
-            //Log.i(TAG, "Notification of time characteristic changed on server.");
 
             if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
                 mHandler.post(new Runnable() {

@@ -24,10 +24,11 @@ public class DeviceProfile {
     public static UUID SERVICE_UUID = UUID.fromString("1706BBC0-88AB-4B8D-877E-2237916EE929");
 
     //Read-only characteristic
-    //public static UUID CHARACTERISTIC_COORD_X_UUID = UUID.fromString("275348FB-C14D-4FD5-B434-7C3F351DEA5F");
     public static UUID CHARACTERISTIC_COORD_X_UUID = UUID.fromString("4929639e-2f03-4597-8c13-d543e1494e26");
-    //public static UUID CHARACTERISTIC_COORD_Y_UUID = UUID.fromString("ef0abc14-06a1-4da5-9e96-1fc8cef5eeed");
     public static UUID CHARACTERISTIC_COORD_Y_UUID = UUID.fromString("275348FB-C14D-4FD5-B434-7C3F351DEA5F");
+
+    public static UUID CHARACTERISTIC_XY_UUID = UUID.fromString("54bbddb9-2303-4a84-b2c3-59d6ac3260a7");
+
 
     public static UUID CHARACTERISTIC_ACTION_UUID = UUID.fromString("ddbe47d3-6881-465a-a0ce-5ba04a18f28c");
     //public static UUID CHARACTERISTIC_PEN_SIZE_UUID = UUID.fromString("ddbe47d3-6881-465a-a0ce-5ba04a18f28c");
@@ -96,6 +97,42 @@ public class DeviceProfile {
                 .order(ByteOrder.LITTLE_ENDIAN)
                 .putFloat(value)
                 .array();
+    }
+
+    public static byte[] bytesFromArray(float[] array){
+        ByteBuffer buf= ByteBuffer.allocate(8)
+                .order(ByteOrder.LITTLE_ENDIAN);
+        buf.putInt(Math.round(array[0]));
+        buf.putInt(Math.round(array[1]));
+
+        return buf.array();
+    }
+
+    public static byte[] bytesFromArray(int [] array){
+        ByteBuffer buf= ByteBuffer.allocate(8)
+                .order(ByteOrder.LITTLE_ENDIAN);
+        buf.putInt(array[0]);
+        buf.putInt(array[1]);
+
+        return buf.array();
+    }
+
+    public static int [] arrayFromBytes(byte [] raw){
+        if (raw.length < 8) throw new IllegalArgumentException("Cannot convert raw data to float array");
+
+        int [] array = new int[2];
+        array[0] = ((raw[0] & 0xFF)
+                + ((raw[1] & 0xFF) << 8)
+                + ((raw[2] & 0xFF) << 16)
+                + ((raw[3] & 0xFF) << 24));
+        array[1] = ((raw[4] & 0xFF)
+                + ((raw[5] & 0xFF) << 8)
+                + ((raw[6] & 0xFF) << 16)
+                + ((raw[7] & 0xFF) << 24));
+
+
+        return array;
+
     }
 
     public static byte[] bytesFromString(String str){

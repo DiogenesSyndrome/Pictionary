@@ -56,6 +56,8 @@ public class CreateActivity extends Activity {
         int size = Dictionary.addDictionary();
         Log.i(TAG, "Dictionary loaded with " + size + " words");
 
+
+
     }
 
 

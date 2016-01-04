@@ -145,22 +145,36 @@ public class BLESingleton extends ContextWrapper{
         BluetoothGattCharacteristic xCoordCharacteristic =
                 new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID,
                         //Read-only characteristic, supports notifications
-                        BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                        BluetoothGattCharacteristic.PERMISSION_READ);
+                        BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                                | BluetoothGattCharacteristic.PROPERTY_WRITE,
+                        BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE);
         BluetoothGattCharacteristic yCoordCharacteristic =
                 new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_Y_UUID,
                         //Read-only characteristic, supports notifications
-                        BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY,
-                        BluetoothGattCharacteristic.PERMISSION_READ);
-        BluetoothGattCharacteristic offsetCharacteristic =
+                        BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                                | BluetoothGattCharacteristic.PROPERTY_WRITE,
+                        BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE);
+
+        BluetoothGattCharacteristic xyCharacteristic =
+                new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_XY_UUID,
+                        //Read-only characteristic, supports notifications
+                        BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_NOTIFY
+                                | BluetoothGattCharacteristic.PROPERTY_WRITE,
+                        BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE);
+
+        BluetoothGattCharacteristic wordCharacteristic =
                 new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_WORD_UUID,
                         //Read+write permissions
                         BluetoothGattCharacteristic.PROPERTY_READ | BluetoothGattCharacteristic.PROPERTY_WRITE,
                         BluetoothGattCharacteristic.PERMISSION_READ | BluetoothGattCharacteristic.PERMISSION_WRITE);
 
+
+
         service.addCharacteristic(xCoordCharacteristic);
         service.addCharacteristic(yCoordCharacteristic);
-        service.addCharacteristic(offsetCharacteristic);
+        service.addCharacteristic(xyCharacteristic);
+
+        service.addCharacteristic(wordCharacteristic);
 
         mGattServer.addService(service);
     }
@@ -210,6 +224,15 @@ public class BLESingleton extends ContextWrapper{
                         BluetoothGatt.GATT_SUCCESS,
                         0,
                         DeviceProfile.bytesFromInt(yCoord));
+            }
+
+            float [] array = {xCoord, yCoord};
+            if (DeviceProfile.CHARACTERISTIC_XY_UUID.equals(characteristic.getUuid())) {
+                mGattServer.sendResponse(device,
+                        requestId,
+                        BluetoothGatt.GATT_SUCCESS,
+                        0,
+                        DeviceProfile.bytesFromArray(array));
             }
 
             if (DeviceProfile.CHARACTERISTIC_WORD_UUID.equals(characteristic.getUuid())) {
@@ -263,9 +286,26 @@ public class BLESingleton extends ContextWrapper{
                 mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(BLESingleton.this, "Word Sent: "+ mWord, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BLESingleton.this, "Word Sent: " + mWord, Toast.LENGTH_SHORT).show();
                     }
                 });
+
+                notifyConnectedDevices();
+            }
+
+            //if listening
+            if (DeviceProfile.CHARACTERISTIC_XY_UUID.equals(characteristic.getUuid())) {
+                int [] array = DeviceProfile.arrayFromBytes(value);
+                Log.i(TAG,"received x and y :" + array[0]+ " "+ array[1]);
+
+                //resend data to confirm correct reception
+                if (responseNeeded) {
+                    mGattServer.sendResponse(device,
+                            requestId,
+                            BluetoothGatt.GATT_SUCCESS,
+                            0,
+                            value);
+                }
 
                 notifyConnectedDevices();
             }
@@ -408,8 +448,12 @@ public class BLESingleton extends ContextWrapper{
     }
 
     public void setCoordinates(float x, float y){
+
         xCoord=x;
         yCoord=y;
+
+        //Log.i(TAG,"xCoord  and yCoord is changed :" + xCoord + yCoord);
+
     }
 
 
