@@ -43,15 +43,9 @@ public class CanvasView extends View {
         super(context, attrs);
         setupCanvas();
     }
-
-    /*
     //warning: uses only one of the 2 possible constructors
-    public static CanvasView getInstance(Context context){
-        if (mInstance==null)
-            mInstance= new CanvasView(context);
-        return mInstance;
-    }
-    */
+
+
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -73,11 +67,6 @@ public class CanvasView extends View {
         float touchY = event.getY();
 
         mBLE.setCoordinates(touchX, touchY);
-        /*
-        if (mTouchListener!=null)
-            mTouchListener.screenTouched();
-            */
-
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:

@@ -142,6 +142,8 @@ public class BLESingleton extends ContextWrapper{
         BluetoothGattService service =new BluetoothGattService(DeviceProfile.SERVICE_UUID,
                 BluetoothGattService.SERVICE_TYPE_PRIMARY);
 
+        //TODO: use onyl XY_UUID
+
         BluetoothGattCharacteristic xCoordCharacteristic =
                 new BluetoothGattCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID,
                         //Read-only characteristic, supports notifications
@@ -209,6 +211,8 @@ public class BLESingleton extends ContextWrapper{
                                                 BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicReadRequest(device, requestId, offset, characteristic);
             Log.i(TAG, "onCharacteristicReadRequest " + characteristic.getUuid().toString());
+
+            //TODO: use onyl XY_UUID
 
             if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
                 mGattServer.sendResponse(device,
@@ -330,13 +334,14 @@ public class BLESingleton extends ContextWrapper{
         public void run() {
             notifyConnectedDevices();
             mHandler.postDelayed(this, 50);
-            //notifyConnectedDevicesY();
         }
     };
 
     /*
     * Initialize the advertiser
     */
+
+    //TODO: try to pass username in the constructor here
     public void startAdvertising() {
         if (mBluetoothLeAdvertiser == null) return;
 
@@ -407,10 +412,13 @@ public class BLESingleton extends ContextWrapper{
     }
 
     /* Storage and access to local characteristic data */
-    //notify remote device such that callbacks can be called
+    //notify remote device such that callbacks on Client can be called (onCharacChanged et.)
     //this will run on a separate thread
     public void notifyConnectedDevices() {
         for (BluetoothDevice device : mConnectedDevices) {
+
+            //TODO: use onyl XY_UUID
+
             BluetoothGattCharacteristic readCharacteristicX = mGattServer.getService(DeviceProfile.SERVICE_UUID)
                     .getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID);
             BluetoothGattCharacteristic readCharacteristicY = mGattServer.getService(DeviceProfile.SERVICE_UUID)
@@ -431,6 +439,7 @@ public class BLESingleton extends ContextWrapper{
         mWordListener = listener;
     }
 
+    //this is just a standard security to avoid sensitive public fields
     public String getWord(){
         return mWord;
     }

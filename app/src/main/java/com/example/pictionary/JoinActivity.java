@@ -61,9 +61,6 @@ public class JoinActivity extends Activity {
     private EditText answerBox;
     private View touchView;
 
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -318,6 +315,8 @@ public class JoinActivity extends Activity {
                     }
                     */
 
+                    //TODO: use only XY_UUID
+
                     characteristic = service.getCharacteristic(DeviceProfile.CHARACTERISTIC_COORD_X_UUID);
                     gatt.readCharacteristic(characteristic);
                     Log.i(TAG, "successfully initialized x Coord characteristic");
@@ -338,6 +337,7 @@ public class JoinActivity extends Activity {
         }
 
         //Callback reporting the result of a readCharacterstic operation
+        //mainly for initialization purposes
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt,
                                          BluetoothGattCharacteristic characteristic,
@@ -346,6 +346,7 @@ public class JoinActivity extends Activity {
             final int charValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
 
             //switch/ case
+            //TODO: use only XY_UUID
 
             if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
                 mHandler.post(new Runnable() {
@@ -383,13 +384,14 @@ public class JoinActivity extends Activity {
         }
 
         //this callback is triggered by a notification from the remote device
+        //THIS DOES THE REAL JOB
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt,
                                             final BluetoothGattCharacteristic characteristic) {
             super.onCharacteristicChanged(gatt, characteristic);
             final int charValue = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 0);
 
-            //TODO: change charac only when necessary
+            //TODO: use only XY_UUID
 
             if (DeviceProfile.CHARACTERISTIC_COORD_X_UUID.equals(characteristic.getUuid())) {
                 mHandler.post(new Runnable() {
